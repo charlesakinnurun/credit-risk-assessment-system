@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "credit-risk-scoring"
+version = "1.0.0"
+description = "Production-oriented probability-of-default credit risk system with calibration, explainability, fairness auditing, FastAPI serving, and a Streamlit dashboard."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Charles Akinnurun" }]
+keywords = [
+    "credit-risk",
+    "machine-learning",
+    "probability-of-default",
+    "scikit-learn",
+    "calibration",
+    "responsible-ai",
+    "fastapi",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "scipy>=1.12",
+    "scikit-learn>=1.5",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "joblib>=1.4",
+    "requests>=2.31",
+    "PyYAML>=6.0",
+    "xlrd>=2.0",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.0",
+    "streamlit>=1.34",
+]
+
+[project.optional-dependencies]
+boosting = ["lightgbm>=4.3"]
+explainability = ["shap>=0.45"]
+tracking = ["mlflow>=2.11"]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+credit-train = "credit_risk.models.train:main"
+credit-predict = "credit_risk.models.predict:main"
+credit-evaluate = "credit_risk.models.evaluate:main"
+
+[project.urls]
+Homepage = "https://github.com/charles-akinnurun/codealpha-credit-scoring-model"
+Repository = "https://github.com/charles-akinnurun/codealpha-credit-scoring-model"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["credit_risk*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4", "W"]
+ignore = ["E501", "B008", "SIM108"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+"src/credit_risk/models/evaluate.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src/credit_risk"]
+ignore_missing_imports = true
+warn_unused_ignores = false
+warn_redundant_casts = false
+check_untyped_defs = true
+disallow_untyped_defs = false
+no_implicit_optional = true
+follow_imports = "silent"
+
+[[tool.mypy.overrides]]
+module = ["sklearn.*", "lightgbm.*", "shap.*", "mlflow.*", "seaborn.*", "matplotlib.*"]
+ignore_missing_imports = true
