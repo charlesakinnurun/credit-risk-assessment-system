@@ -1,0 +1,11 @@
+# Development / CI tooling.
+# Install with: pip install -r requirements-dev.txt
+-r requirements.txt
+
+ruff==0.16.10
+mypy==2.4.0
+
+# Optional extras (install if you want the corresponding features):
+# shipping optional explainability / tracking backends
+shap==0.46.0 ; python_version < "3.14"
+mlflow==2.22.0 ; python_version < "3.14"
