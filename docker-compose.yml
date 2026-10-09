@@ -1,0 +1,63 @@
+# docker compose up            -> start the API and the dashboard
+# docker compose --profile train up train   -> train the model first
+# docker compose --profile mlflow up        -> also start an MLflow server
+#
+# The trained artifact is shared through the ./models volume, so the API and the
+# dashboard read exactly the model produced by the training service.
+
+services:
+  train:
+    build: .
+    profiles: ["train"]
+    command: ["python", "-m", "credit_risk.models.train"]
+    environment:
+      CREDIT_RISK_SEED: ${CREDIT_RISK_SEED:-42}
+      CREDIT_RISK_LOG_LEVEL: ${CREDIT_RISK_LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    restart: "no"
+
+  api:
+    build: .
+    command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      CREDIT_RISK_MODEL_PATH: ${CREDIT_RISK_MODEL_PATH:-models/credit_risk_model.joblib}
+      CREDIT_RISK_LOG_LEVEL: ${CREDIT_RISK_LOG_LEVEL:-INFO}
+    volumes:
+      - ./models:/app/models:ro
+      - ./reports:/app/reports:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    command: ["streamlit", "run", "app/dashboard.py", "--server.address", "0.0.0.0", "--server.port", "8501"]
+    ports:
+      - "${DASHBOARD_PORT:-8501}:8501"
+    environment:
+      CREDIT_RISK_MODEL_PATH: ${CREDIT_RISK_MODEL_PATH:-models/credit_risk_model.joblib}
+    volumes:
+      - ./models:/app/models:ro
+      - ./reports:/app/reports:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.22.0
+    profiles: ["mlflow"]
+    command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--backend-store-uri", "/mlflow/mlruns", "--default-artifact-root", "/mlflow/artifacts"]
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow
+    restart: unless-stopped
