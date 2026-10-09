@@ -1,0 +1,44 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# ---- Environments ----
+.env
+.env.*
+venv/
+.venv/
+env/
+
+# ---- Data (never commit raw or processed financial data) ----
+data/raw/*
+!data/raw/README.md
+data/processed/*
+!data/processed/README.md
+
+# ---- Model artifacts (regenerate with `python -m src.models.train`) ----
+models/*.joblib
+models/*.json
+!models/.gitkeep
+
+# ---- Generated reports & figures ----
+reports/figures/*
+!reports/figures/.gitkeep
+reports/*.csv
+reports/*.json
+reports/*.log
+reports/experiments/
+
+# ---- Experiment tracking ----
+mlruns/
+.streamlit/
+
+# ---- IDE / OS ----
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
