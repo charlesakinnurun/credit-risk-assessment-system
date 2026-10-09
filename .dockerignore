@@ -1,0 +1,23 @@
+# Build context hygiene: keep the image small and never bake in data/artifacts.
+.git
+.gitignore
+.github
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.ipynb_checkpoints
+notebooks
+data
+models
+reports
+*.joblib
+*.xls
+*.parquet
+*.log
+.env
+.env.*
